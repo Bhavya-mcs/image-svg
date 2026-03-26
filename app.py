@@ -20,7 +20,7 @@ if uploaded_file is not None:
     if st.button("Convert to Vector"):
         with st.spinner("Tracing..."):
             # This is the updated command for the latest vtracer
-            vtracer.convert_raw("input.png", "output.svg")
+            vtracer.convert_image_to_svg("input.png", "output.svg")
             
             st.success("Done!")
             st.image("output.svg", caption="Vector Preview")
