@@ -1,0 +1,5 @@
+streamlit
+vtracer
+rembg
+pillow
+numpy
