@@ -1,49 +1,29 @@
 import streamlit as st
 import vtracer
-from rembg import remove
 from PIL import Image
-import io
+import os
 
-st.title("CNC Pattern Extractor")
-st.write("Turn photos of doors/panels into clean SVG vectors.")
+st.set_page_config(page_title="CNC Vector Creator")
 
-uploaded_file = st.file_uploader("Upload Door Photo", type=["jpg", "png", "jpeg"])
+st.title("🖼️ Image to SVG Vector")
+st.write("If you see this, the app is working!")
+
+uploaded_file = st.file_uploader("Upload your image", type=["jpg", "png", "jpeg"])
 
 if uploaded_file is not None:
-    # Load image
-    input_image = Image.open(uploaded_file)
-    st.image(input_image, caption="1. Original Photo", width=300)
+    # Save temp file
+    with open("input.png", "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    
+    st.image("input.png", caption="Uploaded Image", width=300)
 
-    # Step 1: Remove Background (Isolate the pattern)
-    if st.button("Extract Pattern"):
-        with st.spinner("Cleaning image..."):
-            # Remove the wood/background
-            output_image = remove(input_image)
+    if st.button("Convert to Vector"):
+        with st.spinner("Tracing..."):
+            # This is the updated command for the latest vtracer
+            vtracer.convert_raw("input.png", "output.svg")
             
-            # Convert to Grayscale to help the vectorizer
-            bw_image = output_image.convert("L")
-            bw_image.save("temp_cleaned.png")
+            st.success("Done!")
+            st.image("output.svg", caption="Vector Preview")
             
-            # Step 2: Vectorize
-            vtracer.convert_image_to_svg("temp_cleaned.png", "pattern.svg", 
-                                        mode="filter", 
-                                        iteration=2)
-            
-            st.success("Pattern Extracted!")
-            
-            # Show Results
-            col1, col2 = st.columns(2)
-            with col1:
-                st.image(output_image, caption="2. Cleaned Silhouette")
-            with col2:
-                # Preview SVG
-                st.image("pattern.svg", caption="3. Final Vector Path")
-
-            # Step 3: Download
-            with open("pattern.svg", "rb") as f:
-                st.download_button(
-                    label="Download SVG for ArtCam/Corel",
-                    data=f,
-                    file_name="cnc_pattern.svg",
-                    mime="image/svg+xml"
-                )
+            with open("output.svg", "rb") as f:
+                st.download_button("Download SVG", f, "result.svg")
