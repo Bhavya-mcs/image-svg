@@ -19,14 +19,10 @@ if uploaded_file is not None:
 
     if st.button("Convert to Vector"):
         with st.spinner("Tracing..."):
-            # This is the most stable version of the command
-            vtracer.convert_image_to_svg(
-                input_path="input.png", 
-                output_path="output.svg"
-            )
+            # Notice the _py at the extremely end of the command!
+            vtracer.convert_image_to_svg_py("input.png", "output.svg")
             
             st.success("Done!")
-            # Note: We use st.image to show the SVG preview
             st.image("output.svg", caption="Vector Preview")
             
             with open("output.svg", "rb") as f:
