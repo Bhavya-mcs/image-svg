@@ -3,20 +3,19 @@ import subprocess
 import tempfile
 from PIL import Image
 import os
-from rembg import remove
+from rembg import remove, new_session
 
 st.set_page_config(page_title="AI CNC Vector Creator")
 
 st.title("🤖 AI-Powered CNC Vector Extractor")
-st.write("Uses AI to isolate your pattern, and Potrace to draw perfect CNC curves.")
+st.write("Uses lightweight AI to isolate your pattern without crashing the server!")
 
 uploaded_file = st.file_uploader("Upload your photo or design", type=["jpg", "png", "jpeg"])
 
 # --- AI & TRACE CONTROLS ---
 st.write("### 🎛️ AI & Trace Settings")
 
-use_ai = st.toggle("✨ Use AI to Remove Background (Recommended for Photos)", value=False, 
-                   help="Turn this on if your photo has wood grain, shadows, or a messy background.")
+use_ai = st.toggle("✨ Use AI to Remove Background", value=False)
 
 col1, col2 = st.columns(2)
 with col1:
@@ -33,9 +32,10 @@ if uploaded_file is not None:
     
     # 2. AI Processing Step
     if use_ai:
-        with st.spinner("AI is analyzing and cleaning the image (this takes a moment)..."):
-            # The AI removes the background, leaving the pattern on a transparent layer
-            ai_cleaned = remove(original_image)
+        with st.spinner("AI is cleaning the image..."):
+            # THIS IS THE FIX: We use the "u2netp" (pocket) model so the server doesn't crash!
+            light_session = new_session("u2netp")
+            ai_cleaned = remove(original_image, session=light_session)
             
             # Create a pure white background to put the clean pattern onto
             white_bg = Image.new("RGBA", ai_cleaned.size, "WHITE")
